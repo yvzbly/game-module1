@@ -28,6 +28,19 @@ button {
     cursor: pointer;
 }
 
+#dealer-cards img {
+    height: 175px;
+    width: 125px;
+    margin: 1px;
+    border-image: round;
+}
+#player-cards img {
+    height: 175px;
+    width: 125px;
+    margin: 1px;
+    border-image: round;
+}
+
 button:disabled {
     background-color: #7f8c8d;
     cursor: not-allowed;
