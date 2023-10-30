@@ -50,3 +50,14 @@ button:disabled {
     font-size: 18px;
     margin-top: 10px;
 }
+
+#deck img {
+    height: 175px;
+    width: 125px;
+    margin: 1px;
+    border-image: round;
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin: 45px;
+}
