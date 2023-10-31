@@ -136,7 +136,8 @@ function calculateHandScore(hand) {
   
     for (const card of hand) {
       const cardName = card.name;
-      const cardValue = cardName.split(' ')[1];
+      const cardValueMatch = cardName.match(/\d+|A+/);
+      const cardValue = cardValueMatch ? cardValueMatch[0] : null;
   
       if (cardValue === "A") {
         numAces++;
