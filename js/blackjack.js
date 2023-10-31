@@ -55,76 +55,188 @@ const cards = [
 console.log(cards);
 
 class Card {
-  constructor(suit, value, img) {
-    this.suit = suit;
-    this.value = value;
-    this.img = img;
-  }
-}
-class Deck {
-  constructor() {
-    this.cards = this.createDeck();
-    this.shuffle();
-  }
-  drawCard(){
-    return this.cards.pop();
-    function drawCard(hand, targetElement) {
-        const card = deck.drawCard();
-        hand.push(card);
-        const cardImg = document.createElement("img");
-        cardImg.src = `/images/cards/${card.img}`;
-        targetElement.appendChild(cardImg);
-        updateScores();
+    constructor(suit, value, img) {
+      this.suit = suit;
+      this.value = value;
+      this.img = img;
     }
   }
-
-  createDeck() {
-    const suits = ["hearts", "diamonds", "clubs", "spades"];
-    const values = [
-      "2",
-      "3",
-      "4",
-      "5",
-      "6",
-      "7",
-      "8",
-      "9",
-      "10",
-      "J",
-      "Q",
-      "K",
-      "A",
-    ];
-    const cards = [];
-
-    for (const suit of suits) {
-      for (const value of values) {
-        const cardName = `${value}`;
-        const imgName = `${value}-${suit.charAt(0)}.png`;
-
-        const card = {
-          name: cardName,
-          img: imgName,
-        };
-
-        cards.push(card);
-        console.log(card);
+  
+  class Deck {
+    constructor() {
+      this.cards = this.createDeck();
+      this.shuffle();
+    }
+  
+    drawCard(hand, targetElement) {
+      const card = this.cards.pop();
+      hand.push(card);
+      const cardImg = document.createElement("img");
+      cardImg.src = `/images/cards/${card.img}`;
+      targetElement.appendChild(cardImg);
+      updateScores();
+    }
+  
+    createDeck() {
+      const suits = ["hearts", "diamonds", "clubs", "spades"];
+      const values = [
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "J",
+        "Q",
+        "K",
+        "A",
+      ];
+      const cards = [];
+  
+      for (const suit of suits) {
+        for (const value of values) {
+          const cardName = `${value}`;
+          const imgName = `${value}-${suit.charAt(0)}.png`;
+  
+          const card = {
+            name: cardName,
+            img: imgName,
+          };
+  
+          cards.push(card);
+          console.log(card);
+        }
+      }
+  
+      return cards;
+    }
+  
+    shuffle() {
+      for (let i = this.cards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
+        console.log(j);
       }
     }
+  }
 
-    return cards;
-  }
-  shuffle() {
-    for (let i = this.cards.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
-      console.log(j);
-    }
-  }
-}
 const deck = new Deck();
 const playerHand = [];
 const dealerHand = [];
 let playerScore = 0;
 let dealerScore = 0;
 let gameOver = false;
+
+const dealButton = document.getElementById("deal-button");
+const hitButton = document.getElementById("hit-button");
+const standButton = document.getElementById("stand-button");
+dealButton.addEventListener("click", deal);
+hitButton.addEventListener("click", hit);
+standButton.addEventListener("click", stand);
+
+function drawCard(playerHand, dealerHand){
+    
+}
+
+
+
+function deal() {
+    if (!gameOver) {
+      for (let i = 0; i < 2; i++) {
+        // drawCard(playerHand, document.getElementById('player-cards'));
+        // drawCard(dealerHand, document.getElementById('dealer-cards'));
+      }
+      updateScores();
+      dealButton.disabled = true;
+      hitButton.disabled = false;
+      standButton.disabled = false;
+    }
+  }
+
+  function hit() {
+    if (!gameOver) {
+    //   drawCard(playerHand, document.getElementById('player-cards'));
+      updateScores();
+      checkForBlackjack();
+    }
+  }
+
+function stand() {
+  if (!gameOver) {
+    while (dealerScore < 17) {
+    //   drawCard(dealerHand, document.getElementById("dealer-cards"));
+      updateScores();
+    }
+    endGame();
+  }
+}
+
+function endGame() {
+  gameOver = true;
+  dealButton.disabled = true;
+  hitButton.disabled = true;
+  standButton.disabled = true;
+
+  updateScores();
+
+  if (playerScore > 21) {
+    displayMessage("You bust! Dealer wins");
+  } else if (dealerScore > 21) {
+    displayMessage("Dealer busts! You win");
+  } else if (playerScore > dealerScore) {
+    displayMessage("You win!");
+  } else if (playerScore < dealerScore) {
+    displayMessage("Dealer wins");
+  } else {
+    displayMessage("It`s a tie.");
+  }
+}
+
+function displayMessage(message) {
+  const messageElement = document.getElementById("message");
+  messageElement.textContent = message;
+}
+
+function checkForBlackjack() {
+    if(playerHand.length === 2 && playerScore === 21){
+        endGame();
+    }
+    displayMessage("Blackjack! You win");
+}
+
+function updateScores() {
+  playerScore = calculateHandScore(playerHand);
+  dealerScore = calculateHandScore(dealerHand);
+
+  const playerScoreElement = document.getElementById('player-score');
+  const dealerScoreElement = document.getElementById('dealer-score');
+
+  playerScoreElement.textContent = `Player score: ${playerScore}`;
+  dealerScoreElement.textContent = `Dealer score: ${dealerScore}`;
+}
+
+function calculateHandScore(hand){
+    let score = 0;
+    let numAces = 0;
+
+    for(const card of hand){
+        const cardValue = card.value;
+
+        if(cardValue === "A"){
+            numAces++;
+            score += 11;
+        }else if (cardValue === "K" || cardValue === "Q" || cardValue === "J"){
+            score += 10;
+        }else {
+            score += parseInt(cardValue);
+        }
+    }
+    while (numAces > 0 && score > 21){
+        score -= 10;
+        numAces--;
+    }
+    return score;
+}
