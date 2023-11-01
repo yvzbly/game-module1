@@ -52,7 +52,7 @@ const cards = [
   { name: "spades K", img: "K-S.png" },
   { name: "spades A", img: "A-S.png" },
 ];
-console.log(cards);
+// console.log(cards);
 
 class Card {
   constructor(suit, value, img) {
@@ -107,7 +107,7 @@ class Deck {
         };
 
         cards.push(card);
-        console.log(card);
+        // console.log(card);
       }
     }
 
@@ -118,7 +118,7 @@ class Deck {
     for (let i = this.cards.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
-      console.log(j);
+      // console.log(j);
     }
   }
 }
@@ -131,94 +131,116 @@ let dealerScore = 0;
 let gameOver = false;
 
 function calculateHandScore(hand) {
-    let score = 0;
-    let numAces = 0;
-  
-    for (const card of hand) {
-      const cardName = card.name;
-      const cardValueMatch = cardName.match(/\d+|J|Q|K|A/);
-      const cardValue = cardValueMatch ? cardValueMatch[0] : null;
-  
-      if (cardValue === "A") {
-        numAces++;
-        score += 11;
-      } else if (cardValue === "K" || cardValue === "Q" || cardValue === "J") {
-        score += 10;
-      } else {
-        score += parseInt(cardValue);
-      }
+  let score = 0;
+  let numAces = 0;
+
+  for (const card of hand) {
+    const cardName = card.name;
+    const cardValueMatch = cardName.match(/\d+|J|Q|K|A/);
+    const cardValue = cardValueMatch ? cardValueMatch[0] : null;
+
+    if (cardValue === "A") {
+      numAces++;
+      score += 11;
+    } else if (cardValue === "K" || cardValue === "Q" || cardValue === "J") {
+      score += 10;
+    } else {
+      score += parseInt(cardValue);
     }
-  
-    while (numAces > 0 && score > 21) {
-      score -= 10;
-      numAces--;
-    }
-  
-    return score;
   }
 
+  while (numAces > 0 && score > 21) {
+    score -= 10;
+    numAces--;
+  }
+
+  return score;
+}
+
 const dealButton = document.getElementById("deal-button");
+const dealSound = document.getElementById("dealSound");
 const hitButton = document.getElementById("hit-button");
 const standButton = document.getElementById("stand-button");
+
 dealButton.addEventListener("click", deal);
+dealButton.addEventListener("click", function () {
+  dealSound.play();
+});
 hitButton.addEventListener("click", hit);
+hitButton.addEventListener("click", function () {
+  dealSound.play();
+});
 standButton.addEventListener("click", stand);
 
 function deal() {
-  if (!gameOver) {
+  if (gameOver) {
+    startNewGame();
+  } else {
     for (let i = 0; i < 2; i++) {
       deck.drawCard(playerHand, document.getElementById("player-cards"));
       deck.drawCard(dealerHand, document.getElementById("dealer-cards"));
     }
-    updateScores();
     dealButton.disabled = true;
     hitButton.disabled = false;
     standButton.disabled = false;
+    checkForBlackjack();
   }
 }
+
 
 function hit() {
   if (!gameOver) {
     if (playerHand.length < 5) {
       deck.drawCard(playerHand, document.getElementById("player-cards"));
-      deck.drawCard(dealerHand, document.getElementById("dealer-cards"));
-      updateScores();
       checkForBlackjack();
+      computerMove();
     } else {
       hitButton.disabled = true;
     }
   }
 }
 
+function computerMove() {
+  if (!gameOver) {
+    if (dealerHand.length < 5 && dealerScore < 21) {
+      deck.drawCard(dealerHand, document.getElementById("dealer-cards"));
+      checkForBlackjack();
+    }
+  }
+}
+
 function stand() {
   if (!gameOver) {
-    while (dealerScore < 21) {
+    while (dealerScore <= 21 && dealerScore < playerScore)
       deck.drawCard(dealerHand, document.getElementById("dealer-cards"));
-      updateScores();
-    }
-    endGame();
+    updateScores();
   }
+  endGame();
 }
 
 function endGame() {
   gameOver = true;
-  dealButton.disabled = true;
+  dealButton.disabled = false;
   hitButton.disabled = true;
   standButton.disabled = true;
 
   updateScores();
 
-  if (playerScore > 21) {
-    displayMessage("You bust! Dealer wins");
-  } else if (dealerScore > 21) {
-    displayMessage("Dealer busts! You win");
-  } else if (playerScore > dealerScore) {
+  if (playerScore > dealerScore) {
     displayMessage("You win!");
+    playWinSound();
   } else if (playerScore < dealerScore) {
     displayMessage("Dealer wins");
   } else {
     displayMessage("It`s a tie.");
   }
+  if(gameOver){
+    startNewGame();
+  }
+}
+function playWinSound(){
+  const winSound = document.getElementById("PlayerWinSound");
+  winSound.play();
 }
 
 function displayMessage(message) {
@@ -227,10 +249,10 @@ function displayMessage(message) {
 }
 
 function checkForBlackjack() {
-  if (playerHand.length === 2 && playerScore === 21) {
+  if (playerScore === 21 || dealerScore === 21) {
     endGame();
+    displayMessage("Blackjack!");
   }
-  displayMessage("Blackjack! You win");
 }
 
 function updateScores() {
@@ -242,4 +264,29 @@ function updateScores() {
 
   playerScoreElement.textContent = `Player score: ${playerScore}`;
   dealerScoreElement.textContent = `Dealer score: ${dealerScore}`;
+
+  if (playerScore > 21) {
+    displayMessage("You bust! Dealer wins");
+    endGame();
+  } else if (dealerScore > 21) {
+    displayMessage("Dealer busts! You win");
+    playWinSound();
+    endGame();
+  }
+}
+
+function startNewGame() {
+  playerHand.length = 0;
+  dealerHand.length = 0;
+  document.getElementById("player-cards").innerHTML = "";
+  document.getElementById("dealer-cards").innerHTML = "";
+  playerScore = 0;
+  dealerScore = 0;
+  gameOver = false;
+  dealButton.disabled = false;
+  hitButton.disabled = true; 
+  standButton.disabled = true; 
+  displayMessage("");
+  deck.shuffle();
+  updateScores();
 }

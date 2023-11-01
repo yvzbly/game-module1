@@ -48,3 +48,6 @@ Use the browser's developer tools to debug JavaScript code.
 Step 10: CSS Styling
 
 Continue styling your game using CSS to improve the visual appeal.
+
+Things to solve
+[] Deck is finishing after playing few hands. Renew deck
