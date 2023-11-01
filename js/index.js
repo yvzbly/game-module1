@@ -72,7 +72,7 @@ class Deck {
     const card = this.cards.pop();
     hand.push(card);
     const cardImg = document.createElement("img");
-    cardImg.src = `./images/cards/${card.img}`;
+    cardImg.src = `../images/cards/${card.img}`;
     targetElement.appendChild(cardImg);
     updateScores();
   }
