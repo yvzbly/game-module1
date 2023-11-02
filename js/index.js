@@ -99,7 +99,7 @@ class Deck {
     for (const suit of suits) {
       for (const value of values) {
         const cardName = `${value}`;
-        const imgName = `${value}-${suit.charAt(0)}.png`;
+        const imgName = `${value}-${suit.charAt(0).toUpperCase()}.png`; ///
 
         const card = {
           name: cardName,
