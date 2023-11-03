@@ -187,7 +187,6 @@ function deal() {
   }
 }
 
-
 function hit() {
   if (!gameOver) {
     if (playerHand.length < 5) {
@@ -234,11 +233,11 @@ function endGame() {
   } else {
     displayMessage("It`s a tie.");
   }
-  if(gameOver){
-    startNewGame();
-  }
+  // if (gameOver) {
+  //   startNewGame();
+  // }
 }
-function playWinSound(){
+function playWinSound() {
   const winSound = document.getElementById("PlayerWinSound");
   winSound.play();
 }
@@ -284,8 +283,8 @@ function startNewGame() {
   dealerScore = 0;
   gameOver = false;
   dealButton.disabled = false;
-  hitButton.disabled = true; 
-  standButton.disabled = true; 
+  hitButton.disabled = true;
+  standButton.disabled = true;
   displayMessage("");
   deck.shuffle();
   updateScores();
